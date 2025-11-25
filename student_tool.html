@@ -388,6 +388,15 @@
 
             // --- 1. GET PARAMETERS & API KEY ---
             const params = new URLSearchParams(window.location.search);
+            const sid = params.get('sid'); // 01 ~ 30
+            // 例如顯示在標題下方：
+            if (sid) {
+                const detailsBar = document.getElementById('comp-details');
+                const sidChip = document.createElement('span');
+                sidChip.className = 'bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-sm';
+                sidChip.textContent = `座號：${sid} 號`;
+                detailsBar.appendChild(sidChip);
+            }
             const config = {
                 title: params.get('title') || "我最喜歡的角落",
                 level: params.get('level') || "四年級",
@@ -403,16 +412,20 @@
                 conjunctions: params.get('conjunctions')?.split(',').filter(Boolean) || [],
                 rhetoric: params.get('rhetoric')?.split(',').filter(Boolean) || []
             };
-            const apiKey = "AIzaSyDRYsGnQa2cOBt4a0zUo3fU0EJ5bVcvApA";
-            //const apiKey = initializeApiKeyFromHash(); // 從 Hash 或 sessionStorage 獲取 Key
+            const apiKey = initializeApiKeyFromHash(); // 從 Hash 或 sessionStorage 獲取 Key
 
-            //if (!apiKey) {
-                //document.body.innerHTML = '<h1 class="text-red-500 text-center text-xl p-8">❌ 錯誤：缺少 API Key。請返回上一頁重新設定。</h1>';
-                //return;
-            //} else if (!config.title) {
-                //document.body.innerHTML = '<h1 class="text-red-500 text-center text-xl p-8">❌ 錯誤：缺少作文題目。請返回上一頁重新設定。</h1>';
-                //return;
-            //}
+            if (!apiKey) {
+                document.body.innerHTML = `
+                    <div class="min-h-screen flex items-center justify-center bg-red-50">
+                        <div class="bg-white shadow-md rounded-lg p-8 max-w-md text-center">
+                            <h1 class="text-red-600 text-2xl font-bold mb-4">❌ 錯誤：缺少 API Key</h1>
+                            <p class="text-gray-700 mb-4">
+                                請先回到「教師設定」頁，設定完成後再重新開啟這個學生頁面喔！
+                            </p>
+                        </div>
+                    </div>`;
+                throw new Error('Missing API Key');
+            }
 
             // --- 2. SETUP THE GEMINI API CALL FUNCTION ---
             const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
@@ -1996,5 +2009,4 @@ ${scoreComparisonTask}
     </script>
 </body>
 </html>
-
 
